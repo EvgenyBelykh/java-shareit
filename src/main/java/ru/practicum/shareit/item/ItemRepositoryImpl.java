@@ -86,7 +86,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     public List<Item> searchItem(String text) {
         String lowCaseText = text.toLowerCase();
         List<Item> itemsList = new ArrayList<>();
-        if(text.isBlank()){
+        if (text.isBlank()) {
             log.info("Пустой запрос. Возвращен пустой список");
             return itemsList;
         }

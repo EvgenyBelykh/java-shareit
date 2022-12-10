@@ -14,11 +14,10 @@ import javax.validation.constraints.Email;
 public class User {
 
     private int id;
-
     private String name;
-
     @Email
     private String email;
+
     public User(String email, String name) {
         this.email = email;
         this.name = name;
