@@ -1,62 +1,61 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.exceptions.NoItemException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Qualifier(value = "itemRepositoryImpl")
+@Slf4j
 public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final ItemRepository itemRepository;
-    private final ItemMapper itemMapper = new ItemMapper();
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
 
     @Override
-    public ItemDto addItem(Integer idUser, ItemDto itemDto) {
-        userService.checkUserById(idUser);
-        Item item = itemRepository.addItem(idUser, itemMapper.toItem(itemDto));
+    public ItemDto add(long idUser, ItemDto itemDto) {
+        User user = userMapper.toUser(userService.getById(idUser));
+        Item item = itemRepository.add(idUser, itemMapper.toItem(itemDto,  user));
         return itemMapper.toItemDto(item);
     }
 
     @Override
-    public ItemDto patchItem(Integer idUser, Integer itemId, ItemDto itemDto) {
-        userService.checkUserById(idUser);
-        Item item = itemRepository.patchItem(idUser, itemId, itemMapper.toItem(itemDto));
+    public ItemDto patch(long idUser, long itemId, ItemDto itemDto) {
+        User user = userMapper.toUser(userService.getById(idUser));
+        Item item = itemRepository.patch(idUser, itemId, itemMapper.toItem(itemDto, user));
         return itemMapper.toItemDto(item);
     }
 
     @Override
-    public ItemDto getItemById(Integer itemId) {
-        Item item = itemRepository.getItemById(itemId);
+    public ItemDto getById(long itemId) {
+        Item item = itemRepository.getById(itemId).orElseThrow(() -> new NoItemException(itemId));
+        log.info("Возвращена вещь с id: {}", itemId);
         return itemMapper.toItemDto(item);
     }
 
     @Override
-    public List<ItemDto> getItemsByIdUser(Integer idUser) {
-        userService.checkUserById(idUser);
-        List<Item> items = itemRepository.getItemsByIdUser(idUser);
-        return itemsToItemsDto(items);
+    public List<ItemDto> getAllByIdUser(long idUser) {
+        userMapper.toUser(userService.getById(idUser));
+        return itemsToItemsDto(itemRepository.getAllByIdUser(idUser));
     }
 
     @Override
-    public List<ItemDto> searchItem(String text) {
-        List<Item> items = itemRepository.searchItem(text);
-        return itemsToItemsDto(items);
+    public List<ItemDto> search(String text) {
+        return itemsToItemsDto(itemRepository.search(text));
     }
 
     private List<ItemDto> itemsToItemsDto(List<Item> items) {
-        List<ItemDto> itemsDto = new ArrayList<>();
-        for (Item item : items) {
-            itemsDto.add(itemMapper.toItemDto(item));
-        }
-        return itemsDto;
+        return items.stream().map(itemMapper::toItemDto).collect(Collectors.toList());
     }
 }

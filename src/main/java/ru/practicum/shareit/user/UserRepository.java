@@ -3,17 +3,17 @@ package ru.practicum.shareit.user;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserRepository {
-    List<User> getUsers();
+    List<User> getAll();
 
-    User getUserById(int idUser);
+    Optional<User> getById(long idUser);
 
-    User addUser(User user);
+    User add(User user);
 
-    User patchUser(int idUser, User user);
+    User patch(long idUser, User user);
 
-    void removeUser(int idUser);
+    void remove(long idUser);
 
-    void checkUserById(Integer idUser);
 }

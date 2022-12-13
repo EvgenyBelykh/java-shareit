@@ -13,16 +13,18 @@ import ru.practicum.shareit.user.model.User;
 @Builder
 public class Item {
 
-    private int id;
+    private long id;
     private String name;
     private String description;
     private Boolean available;
     private User owner;
     private ItemRequest request;
 
-    public Item(String name, String description, Boolean available) {
+    public Item(long id, String name, String description, Boolean available, User owner) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.available = available;
+        this.owner = owner;
     }
 }

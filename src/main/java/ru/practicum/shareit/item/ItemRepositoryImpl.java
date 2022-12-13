@@ -1,130 +1,101 @@
 package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import ru.practicum.shareit.item.exceptions.ValidationNotFoundIdItemException;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.exceptions.ValidationNotFoundIdUserException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
-@Component
+@Repository
 public class ItemRepositoryImpl implements ItemRepository {
-    private int id = 1;
-
-    Map<Integer, Map<Integer, Item>> items = new HashMap<>();
+    private long id = 1;
+    private final Map<Long, Item> storage = new LinkedHashMap<>();
+    private final Map<Long, List<Item>> userItemIndex = new LinkedHashMap<>();
 
     @Override
-    public Item addItem(Integer idUser, Item item) {
+    public Item add(long idUser, Item item) {
 
-        Map<Integer, Item> itemMap;
-        if (items.get(idUser) == null) {
-            itemMap = new HashMap<>();
-        } else {
-            itemMap = items.get(idUser);
-        }
+        final List<Item> items = userItemIndex.computeIfAbsent(item.getOwner().getId(), k -> new ArrayList<>());
         item.setId(getId());
-        itemMap.put(item.getId(), item);
+        items.add(item);
 
-        items.put(idUser, itemMap);
+        storage.put(item.getId(), item);
         log.info("Пользователь с id: {} добавил вещь:{}", idUser, item.getName());
         return item;
     }
 
     @Override
-    public Item patchItem(Integer idUser, Integer itemId, Item item) {
-        checkIdUserForSaveCertainItem(idUser, itemId, item);
+    public Item patch(long idUser, long itemId, Item item) {
+        checkUserForSaveItems(idUser);
+        checkUserForSaveCertainItem(idUser, itemId);
 
-        Map<Integer, Item> itemsOfUser = items.get(idUser);
-        Item itemOfUser = itemsOfUser.get(itemId);
+        final List<Item> items = userItemIndex.get(idUser);
+        final Item curItem = storage.get(itemId);
 
-        if (item.getName() != null) {
-            itemOfUser.setName(item.getName());
+        if (item.getName() != null && !item.getName().isBlank()) {
+            curItem.setName(item.getName());
         }
-        if (item.getDescription() != null) {
-            itemOfUser.setDescription(item.getDescription());
+        if (item.getDescription() != null && !item.getDescription().isBlank()) {
+            curItem.setDescription(item.getDescription());
         }
         if (item.getAvailable() != null) {
-            itemOfUser.setAvailable(item.getAvailable());
+            curItem.setAvailable(item.getAvailable());
         }
 
-        itemsOfUser.put(itemId, itemOfUser);
-        items.put(idUser, itemsOfUser);
-        log.info("Пользователь с id: {} обновил вещь:{}", idUser, itemOfUser.getName());
-        return itemOfUser;
-    }
-
-    @Override
-    public Item getItemById(Integer itemId) {
-        Item item = null;
-        for (Map<Integer, Item> itemsOfCertainUser : items.values()) {
-            if (itemsOfCertainUser.containsKey(itemId)) {
-                item = itemsOfCertainUser.get(itemId);
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getId() == itemId) {
+                items.set(i, curItem);
             }
         }
-
-        if (item == null) {
-            throw new ValidationNotFoundIdItemException("Вещь с id: " + itemId + " не содержится в базе");
-        }
-        log.info("Возвращена вещь с id: {}", itemId);
-        return item;
+        log.info("Пользователь с id: {} обновил вещь:{}", idUser, curItem.getName());
+        return curItem;
     }
 
     @Override
-    public List<Item> getItemsByIdUser(Integer idUser) {
-        checkIdUserForSaveItems(idUser);
-        List<Item> itemsList = new ArrayList<>(items.get(idUser).values());
+    public Optional<Item> getById(long itemId) {
+        return Optional.ofNullable(storage.get(itemId));
+    }
+
+    @Override
+    public List<Item> getAllByIdUser(long idUser) {
+        checkUserForSaveItems(idUser);
+        List<Item> items = userItemIndex.get(idUser);
         log.info("Возвращен список вещей пользователя с id: {}", idUser);
-        return itemsList;
+        return items;
     }
 
     @Override
-    public List<Item> searchItem(String text) {
+    public List<Item> search(String text) {
         String lowCaseText = text.toLowerCase();
         List<Item> itemsList = new ArrayList<>();
-        if (text.isBlank()) {
-            log.info("Пустой запрос. Возвращен пустой список");
-            return itemsList;
-        }
 
-        for (Map<Integer, Item> itemsOfCertainUser : items.values()) {
-            for (Item item : itemsOfCertainUser.values()) {
-                if ((item.getName().toLowerCase().contains(lowCaseText) ||
-                        item.getDescription().toLowerCase().contains(lowCaseText)) &&
-                        item.getAvailable()) {
-                    itemsList.add(item);
-                }
+        for (Item item : storage.values()) {
+            if ((item.getName().toLowerCase().contains(lowCaseText) ||
+                    item.getDescription().toLowerCase().contains(lowCaseText)) && item.getAvailable()) {
+                itemsList.add(item);
             }
         }
-
-//        if(itemsList.size() == 0){
-//            throw new ValidationNotFoundIdItemException("Не найдено ни одной вещи по запросу: " + text);
-//        }
 
         log.info("Возвращен список доступных вещей по запросу: {}", text);
         return itemsList;
     }
 
-    private void checkIdUserForSaveItems(Integer idUser) {
-        if (!items.containsKey(idUser)) {
+    private void checkUserForSaveItems(long idUser) {
+        if (!userItemIndex.containsKey(idUser)) {
             throw new ValidationNotFoundIdUserException("У пользователя с id: " + idUser + "пока нет вещей для шеринга");
         }
     }
 
-    private void checkIdUserForSaveCertainItem(Integer idUser, Integer itemId, Item item) {
-        checkIdUserForSaveItems(idUser);
-
-        if (!items.get(idUser).containsKey(itemId)) {
-            throw new ValidationNotFoundIdUserException("Вещь: " + item.getName() +
+    private void checkUserForSaveCertainItem(long idUser, long itemId) {
+        if (storage.get(itemId).getOwner().getId() != idUser) {
+            throw new ValidationNotFoundIdUserException("Вещь c id: " + itemId +
                     " не принадлежит пользователю с id: " + idUser);
         }
     }
 
-    private int getId() {
+    private long getId() {
         return id++;
     }
 }

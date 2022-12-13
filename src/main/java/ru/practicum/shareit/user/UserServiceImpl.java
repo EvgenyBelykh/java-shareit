@@ -1,52 +1,44 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.exceptions.NoUserException;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Qualifier(value = "UserRepositoryImpl")
+@Slf4j
 public class UserServiceImpl implements UserService {
-    private final UserRepository repository;
-    private final UserMapper userMapper = new UserMapper();
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public List<UserDto> getUsers() {
-        List<User> userList = repository.getUsers();
-
-        List<UserDto> userDtoList = new ArrayList<>();
-        for (User user : userList) {
-            userDtoList.add(userMapper.toUserDto(user));
-        }
-        return userDtoList;
+    public List<UserDto> get() {
+        return userRepository.getAll().stream().map(userMapper::toUserDto).collect(Collectors.toList());
     }
 
-    public UserDto getUserById(Integer idUser) {
-        return userMapper.toUserDto(repository.getUserById(idUser));
-    }
-
-    public UserDto addUser(UserDto userDto) {
-        User user = repository.addUser(userMapper.toUser(userDto));
+    public UserDto getById(long idUser) {
+        User user = userRepository.getById(idUser).orElseThrow(() -> new NoUserException(idUser));
+        log.info("Возвращен пользователь с id: {}", idUser);
         return userMapper.toUserDto(user);
     }
 
-    public UserDto patchUser(Integer idUser, UserDto userDto) {
-        User user = repository.patchUser(idUser, userMapper.toUser(userDto));
+    public UserDto add(UserDto userDto) {
+        User user = userRepository.add(userMapper.toUser(userDto));
         return userMapper.toUserDto(user);
     }
 
-    public void removeUser(Integer idUser) {
-        repository.removeUser(idUser);
+    public UserDto patch(long idUser, UserDto userDto) {
+        User user = userRepository.patch(idUser, userMapper.toUser(userDto));
+        return userMapper.toUserDto(user);
     }
 
-    @Override
-    public void checkUserById(Integer idUser) {
-        repository.checkUserById(idUser);
+    public void remove(long idUser) {
+        userRepository.remove(idUser);
     }
 }

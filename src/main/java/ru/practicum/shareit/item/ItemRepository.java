@@ -3,15 +3,16 @@ package ru.practicum.shareit.item;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ItemRepository {
-    Item addItem(Integer idUser, Item item);
+    Item add(long idUser, Item item);
 
-    Item patchItem(Integer idUser, Integer itemId, Item item);
+    Item patch(long idUser, long itemId, Item item);
 
-    Item getItemById(Integer itemId);
+    Optional<Item> getById(long itemId);
 
-    List<Item> getItemsByIdUser(Integer idUser);
+    List<Item> getAllByIdUser(long idUser);
 
-    List<Item> searchItem(String text);
+    List<Item> search(String text);
 }

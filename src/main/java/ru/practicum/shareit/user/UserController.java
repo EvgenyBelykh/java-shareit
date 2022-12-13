@@ -1,75 +1,56 @@
 package ru.practicum.shareit.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.Create;
+import ru.practicum.shareit.user.dto.Update;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.exceptions.ValidationUserDtoException;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
-    UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserService userService;
 
     @GetMapping
-    public List<UserDto> getUsers() {
+    public List<UserDto> getAll() {
         log.info("Запрос получения всех пользователей");
-        return userService.getUsers();
+        return userService.get();
     }
 
     @GetMapping("{id}")
-    public UserDto getUserById(@PathVariable("id") Integer idUser) {
+    public UserDto getById(@PathVariable("id") Long idUser) {
         log.info("Запрос получения пользователя с id {}", idUser);
-        return userService.getUserById(idUser);
+        return userService.getById(idUser);
     }
 
     @PostMapping
-    public UserDto addUser(@Valid @RequestBody UserDto userDto) {
-        validNameUserDto(userDto);
-        validEmailUserDto(userDto);
+    public UserDto add(@Validated(Create.class) @RequestBody UserDto userDto) {
         log.info("Запрос добавления пользователя с email {}", userDto.getEmail());
-        return userService.addUser(userDto);
+        return userService.add(userDto);
     }
 
     @PatchMapping("{id}")
-    public UserDto patchUser(@PathVariable("id") Integer idUser,
-                             @Valid @RequestBody UserDto userDto) {
-        checkPatchUserDto(userDto);
+    public UserDto patch(@PathVariable("id") Long idUser,
+                         @Validated(Update.class) @RequestBody UserDto userDto) {
+        checkPatch(userDto);
         log.info("Запрос обновления пользователя с id {}", idUser);
-        return userService.patchUser(idUser, userDto);
+        return userService.patch(idUser, userDto);
     }
 
     @DeleteMapping("{id}")
-    public void removeUser(@PathVariable("id") Integer idUser) {
+    public void remove(@PathVariable("id") Long idUser) {
         log.info("Запрос удаления пользователя с id {}", idUser);
-        userService.removeUser(idUser);
+        userService.remove(idUser);
     }
 
-    private void validNameUserDto(UserDto userDto) {
-        if (userDto.getName() == null) {
-            throw new ValidationUserDtoException("Пользователю не задано имя");
-        }
-        if (userDto.getName().isEmpty() || userDto.getName().isBlank()) {
-            throw new ValidationUserDtoException("Имя пользователя не может быть пустым или состоять только из пробелов");
-        }
-    }
-
-    private void validEmailUserDto(UserDto userDto) {
-        if (userDto.getEmail() == null) {
-            throw new ValidationUserDtoException("Пользователю не задан email");
-        }
-    }
-
-    private void checkPatchUserDto(UserDto userDto) {
+    private void checkPatch(UserDto userDto) {
         if ((userDto.getName() == null || userDto.getName().isEmpty() || userDto.getName().isBlank()) &&
                 userDto.getEmail() == null) {
             throw new ValidationUserDtoException("Не задано ни одно поле для обновления пользователя");
