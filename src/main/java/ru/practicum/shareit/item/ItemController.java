@@ -52,7 +52,7 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> search(@RequestParam(name = "text") String text) {
         log.info("Поиск свободных вещей по строке: {}", text);
-        if(text.isBlank()){
+        if (text.isBlank()) {
             log.info("Пустой запрос. Возвращен пустой список");
             return Collections.emptyList();
         }

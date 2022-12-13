@@ -60,6 +60,7 @@ public class UserRepositoryImpl implements UserRepository {
         users.remove(idUser);
         log.info("Удален пользователь с id: {}", idUser);
     }
+
     private void checkExistEmail(User user) {
         for (User curUser : users.values()) {
             if (curUser.getEmail().equals(user.getEmail()) && curUser.getId() != user.getId()) {
