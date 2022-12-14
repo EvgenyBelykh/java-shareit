@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import jdk.jshell.execution.Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.exceptions.NoUserException;
@@ -64,7 +63,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean isExistUser(long idUser) {
-        if(users.containsKey(idUser)){
+        if (users.containsKey(idUser)) {
             return true;
         } else {
             throw new NoUserException(idUser);

@@ -14,5 +14,6 @@ public interface UserService {
     UserDto patch(long idUser, UserDto userDto);
 
     void remove(long idUser);
+
     boolean isExistUser(long idUser);
 }
