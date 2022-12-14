@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import jdk.jshell.execution.Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.exceptions.NoUserException;
@@ -38,7 +39,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User patch(long idUser, User user) {
-        checkExistIdUser(idUser);
+        isExistUser(idUser);
         User curUser = users.get(idUser);
 
         if (user.getEmail() != null && !user.getEmail().isBlank()) {
@@ -56,9 +57,18 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void remove(long idUser) {
-        checkExistIdUser(idUser);
+        isExistUser(idUser);
         users.remove(idUser);
         log.info("Удален пользователь с id: {}", idUser);
+    }
+
+    @Override
+    public boolean isExistUser(long idUser) {
+        if(users.containsKey(idUser)){
+            return true;
+        } else {
+            throw new NoUserException(idUser);
+        }
     }
 
     private void checkExistEmail(User user) {
@@ -66,12 +76,6 @@ public class UserRepositoryImpl implements UserRepository {
             if (curUser.getEmail().equals(user.getEmail()) && curUser.getId() != user.getId()) {
                 throw new ExistEmailUserDtoException("Пользователь с email: " + user.getEmail() + " уже существует");
             }
-        }
-    }
-
-    private void checkExistIdUser(long idUser) {
-        if (!users.containsKey(idUser)) {
-            throw new NoUserException(idUser);
         }
     }
 

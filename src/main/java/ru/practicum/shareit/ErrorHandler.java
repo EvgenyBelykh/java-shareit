@@ -39,4 +39,11 @@ public class ErrorHandler {
         log.info("400 Bad Request");
         return new ErrorResponse("Неверный запрос: " + e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleException(Throwable e) {
+        log.info("500 Internal Server Error");
+        return new ErrorResponse("Неверный запрос: " + e.getMessage());
+    }
 }

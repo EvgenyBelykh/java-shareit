@@ -15,5 +15,6 @@ public interface UserRepository {
     User patch(long idUser, User user);
 
     void remove(long idUser);
+    boolean isExistUser(long idUser);
 
 }

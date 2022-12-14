@@ -6,6 +6,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.exceptions.ValidationNotFoundIdUserException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -31,7 +32,6 @@ public class ItemRepositoryImpl implements ItemRepository {
         checkUserForSaveItems(idUser);
         checkUserForSaveCertainItem(idUser, itemId);
 
-        final List<Item> items = userItemIndex.get(idUser);
         final Item curItem = storage.get(itemId);
 
         if (item.getName() != null && !item.getName().isBlank()) {
@@ -44,11 +44,6 @@ public class ItemRepositoryImpl implements ItemRepository {
             curItem.setAvailable(item.getAvailable());
         }
 
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getId() == itemId) {
-                items.set(i, curItem);
-            }
-        }
         log.info("Пользователь с id: {} обновил вещь:{}", idUser, curItem.getName());
         return curItem;
     }
@@ -68,18 +63,11 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public List<Item> search(String text) {
-        String lowCaseText = text.toLowerCase();
-        List<Item> itemsList = new ArrayList<>();
-
-        for (Item item : storage.values()) {
-            if ((item.getName().toLowerCase().contains(lowCaseText) ||
-                    item.getDescription().toLowerCase().contains(lowCaseText)) && item.getAvailable()) {
-                itemsList.add(item);
-            }
-        }
-
-        log.info("Возвращен список доступных вещей по запросу: {}", text);
-        return itemsList;
+        return storage.values().stream().filter(item ->
+                item.getName().toLowerCase().contains(text.toLowerCase()) ||
+                        item.getDescription().toLowerCase().contains(text.toLowerCase()) &&
+                                item.getAvailable())
+                .collect(Collectors.toList());
     }
 
     private void checkUserForSaveItems(long idUser) {

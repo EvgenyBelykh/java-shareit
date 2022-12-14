@@ -1,5 +1,6 @@
 package ru.practicum.shareit;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestControllerAdvice
+@Slf4j
 public class CustomErrorHandlerController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public final ResponseEntity<Object> handleUserNotFoundException(MethodArgumentNotValidException ex, WebRequest request) {
@@ -26,7 +28,7 @@ public class CustomErrorHandlerController {
 
             customFieldErrors.add(customFieldError);
         }
-
+        log.info("400 Bad Request");
         return ResponseEntity.badRequest().body(customFieldErrors);
     }
 }

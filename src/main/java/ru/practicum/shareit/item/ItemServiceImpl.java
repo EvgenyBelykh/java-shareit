@@ -46,13 +46,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllByIdUser(long idUser) {
-        userMapper.toUser(userService.getById(idUser));
+        userService.isExistUser(idUser);
         return itemsToItemsDto(itemRepository.getAllByIdUser(idUser));
     }
 
     @Override
     public List<ItemDto> search(String text) {
-        return itemsToItemsDto(itemRepository.search(text));
+        List<ItemDto> searchList = itemsToItemsDto(itemRepository.search(text));
+        log.info("Возвращен список доступных вещей по запросу: {}", text);
+        return searchList;
     }
 
     private List<ItemDto> itemsToItemsDto(List<Item> items) {
