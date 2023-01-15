@@ -19,7 +19,7 @@ public class CustomErrorHandlerController {
         final List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
         final List<CustomFieldError> customFieldErrors = new ArrayList<>();
 
-        for (FieldError fieldError: fieldErrors) {
+        for (FieldError fieldError : fieldErrors) {
             final String field = fieldError.getField();
 
             final String message = fieldError.getDefaultMessage();
