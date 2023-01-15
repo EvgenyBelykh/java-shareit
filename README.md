@@ -1,6 +1,6 @@
 # shareit
 Template repository for shareit project.
-![diagram](https://github.com/EvgenyBelykh/java-shareit/shareit.png)
+![diagram](https://github.com/EvgenyBelykh/java-shareit/blob/add-bookings/shareit.png)
 
 ## Code from dbdiagram.io:
 
