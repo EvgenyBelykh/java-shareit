@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.serviсes;
+package ru.practicum.shareit.booking.services;
 
 import ru.practicum.shareit.booking.enums.State;
 import ru.practicum.shareit.booking.dto.AddBookingDto;

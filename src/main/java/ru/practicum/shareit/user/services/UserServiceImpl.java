@@ -56,6 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void remove(long idUser) {
+        userRepository.findById(idUser).orElseThrow(() -> new NoUserException(idUser));
         userRepository.deleteById(idUser);
         log.info("Удалили пользователя в БД с id: {}", idUser);
     }

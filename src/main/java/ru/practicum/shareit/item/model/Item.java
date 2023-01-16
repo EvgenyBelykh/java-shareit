@@ -4,13 +4,17 @@ import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.util.Objects;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Entity
 @Table(name = "items", schema = "public")
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Getter
+@Setter
+@Builder
+@ToString
+
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +31,20 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
+    @ToString.Exclude
     private User owner;
 
-//    private ItemRequest request;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return id == item.id && Objects.equals(name, item.name) && Objects.equals(description, item.description) && Objects.equals(available, item.available) && Objects.equals(owner, item.owner);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, available, owner);
+    }
 
 }
