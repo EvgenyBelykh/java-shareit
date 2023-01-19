@@ -1,10 +1,14 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Create;
+import ru.practicum.shareit.item.dto.AddCommentDto;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.exceptions.EmptyCommentException;
+import ru.practicum.shareit.item.services.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exceptions.ValidationItemDtoException;
 
@@ -37,10 +41,11 @@ public class ItemController {
         return itemService.patch(idUser, itemId, itemDto);
     }
 
-    @GetMapping("{itemId}")
-    public ItemDto getById(@PathVariable(value = "itemId") Long itemId) {
-        log.info("Запрос информации по вещи с id: {}", itemId);
-        return itemService.getById(itemId);
+    @GetMapping("/{itemId}")
+    public ItemDto getById(@PathVariable(value = "itemId") Long itemId,
+                           @RequestHeader(value = "X-Sharer-User-Id") Long idUser) {
+        log.info("Запрос информации по вещи с id: {} пользователем с id={}", itemId, idUser);
+        return itemService.getById(itemId, idUser);
     }
 
     @GetMapping
@@ -57,6 +62,18 @@ public class ItemController {
             return Collections.emptyList();
         }
         return itemService.search(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader(value = "X-Sharer-User-Id") Long idUser,
+                                 @PathVariable(value = "itemId") Long itemId,
+                                 @RequestBody AddCommentDto addCommentDto) {
+        if (addCommentDto.getText().isBlank()) {
+            throw new EmptyCommentException("Пустой запрос");
+        }
+        log.info("Запрос добавления отзыва от пользователя с id= {} для вещи с id: {}",
+                idUser, itemId);
+        return itemService.addComment(idUser, itemId, addCommentDto);
     }
 
     private void checkPatch(ItemDto itemDto) {
