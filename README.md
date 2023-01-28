@@ -1,22 +1,12 @@
 # shareit
 Template repository for shareit project.
-![diagram](https://github.com/EvgenyBelykh/java-shareit/blob/add-bookings/shareit.png)
+![diagram](https://github.com/EvgenyBelykh/java-shareit/blob/add-item-requests/shareit-add-requests.png)
 
 ## Code from dbdiagram.io:
 
 
 
   ``` 
-Project shareIt {
-database_type: 'PostgreSql'
-}
-
-Table users {
-id bigint [pk, increment]
-email email
-String varchar(64)
-}
-
 Table items {
 id bigint [pk, increment]
 name varchar(64)
@@ -50,9 +40,18 @@ author_id bigint
 created timestamp
 }
 
+Table requests {
+id bigint [pk, increment]
+description varchar(200)
+created timestamp
+user_id bigint
+}
+
 Ref: items.owner_id < users.id
 Ref: bookings.item_id > items.id
 Ref: bookings.booker_id < users.id
 Ref: comments.item_id > items.id
 Ref: comments.author_id < users.id
+Ref: requests.id - items.request_id
+Ref: requests.user_id > users.id
    ```
