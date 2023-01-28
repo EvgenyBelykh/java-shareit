@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.booking.services.BookingService;
 import ru.practicum.shareit.booking.enums.State;
 import ru.practicum.shareit.booking.dto.AddBookingDto;
@@ -49,24 +50,30 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getAllByIdUser(@RequestHeader(value = "X-Sharer-User-Id") Long idUser,
                                            @RequestParam(value = "state", defaultValue = "ALL", required = false)
-                                           String stateString) {
+                                           String stateString,
+                                           @RequestParam(value = "from", required = false) Integer from,
+                                           @RequestParam(value = "size", required = false) Integer size) {
         compareStateAndStringFromJson(stateString);
+        checkParameters(from, size);
 
         log.info("Запрос получения списка всех бронирований со статусом: {} пользователя с id: {}",
                 stateString, idUser);
 
-        return bookingService.getAllByIdUser(idUser, State.valueOf(stateString));
+        return bookingService.getAllByIdUser(idUser, State.valueOf(stateString), from, size);
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getAlByIdOwner(@RequestHeader(value = "X-Sharer-User-Id") Long idUser,
-                                           @RequestParam(value = "state", defaultValue = "ALL", required = false)
-                                           String stateString) {
+    public List<BookingDto> getAllByIdOwner(@RequestHeader(value = "X-Sharer-User-Id") Long idUser,
+                                            @RequestParam(value = "state", defaultValue = "ALL", required = false)
+                                            String stateString,
+                                            @RequestParam(value = "from", required = false) Integer from,
+                                            @RequestParam(value = "size", required = false) Integer size) {
         compareStateAndStringFromJson(stateString);
+        checkParameters(from, size);
 
         log.info("Запрос получения списка всех бронирований со статусом: {} вещей владельца с id: {}",
                 stateString, idUser);
-        return bookingService.getAllByIdOwner(idUser, State.valueOf(stateString));
+        return bookingService.getAllByIdOwner(idUser, State.valueOf(stateString), from, size);
     }
 
     private void compareStateAndStringFromJson(String stateString) {
@@ -79,6 +86,20 @@ public class BookingController {
             throw new WrongStateException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
-
+    private void checkParameters(Integer from, Integer size){
+        if (from != null && from < 0) {
+            log.info("Задан неправильный номер элемента для пагинации = {}", from);
+            throw new IncorrectParameterException("from");
+        }
+        if (size != null && size <= 0) {
+            log.info("Задан неправильный размер страницы для пагинации = {}", size);
+            throw new IncorrectParameterException("size");
+        }
+        if (from != null & size == null |
+                from == null & size != null) {
+            log.info("Один из параметров пагинации null - from = {}, size={}", from, size);
+            throw new IncorrectParameterException("size или from");
+        }
+    }
 
 }

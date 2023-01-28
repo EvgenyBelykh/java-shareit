@@ -12,14 +12,17 @@ import ru.practicum.shareit.item.exceptions.CommentFutureException;
 import ru.practicum.shareit.item.exceptions.NoBookingCommentException;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.repositries.CommentRepository;
-import ru.practicum.shareit.item.repositries.ItemRepository;
+import ru.practicum.shareit.item.repositories.CommentRepository;
+import ru.practicum.shareit.item.repositories.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exceptions.NoItemException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.LastBooking;
 import ru.practicum.shareit.item.model.NextBooking;
+import ru.practicum.shareit.request.exception.NoItemRequestException;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repositories.ItemRequestRepository;
 import ru.practicum.shareit.user.services.UserService;
 import ru.practicum.shareit.user.exceptions.ValidationNotFoundIdUserException;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -37,6 +40,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
@@ -44,9 +48,19 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto add(long idUser, ItemDto itemDto) {
         User user = userMapper.toUser(userService.getById(idUser));
-        Item item = itemRepository.save(itemMapper.toItem(itemDto, user));
-        log.info("Сохранена вещь с id: {} пользователя с id: {}", item.getId(), idUser);
-        return itemMapper.toItemDtoWithoutBooking(item);
+
+        if(itemDto.getRequestId() == null){
+            Item item = itemRepository.save(itemMapper.toItem(itemDto, user));
+            log.info("Сохранена вещь с id: {} пользователя с id: {}", item.getId(), idUser);
+            return itemMapper.toItemDtoWithoutBooking(item);
+        } else {
+            ItemRequest itemRequest = itemRequestRepository.findItemRequestById(itemDto.getRequestId()).orElseThrow(()
+                    -> new NoItemRequestException(itemDto.getRequestId()));
+
+            Item item = itemRepository.save(itemMapper.toItemWithRequest(itemDto, user, itemRequest));
+            return itemMapper.toItemDtoWithoutBookingWithRequest(item);
+        }
+
     }
 
     @Override
@@ -145,7 +159,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NoItemException(itemId));
         Booking booking = bookingRepository.findFirstBookingByItemIdAndBookerIdAndStatusOrderByStartAsc(itemId, idUser,
                 Status.APPROVED).orElseThrow(() ->
-                new NoBookingCommentException("Пользователь еще арендовал эту вещь"));
+                new NoBookingCommentException("Пользователь еще не арендовал эту вещь"));
 
         if (booking.getStart().isAfter(LocalDateTime.now())) {
             throw new CommentFutureException("Нельзя делать отзыв к еще не взятой в аренду вещи");

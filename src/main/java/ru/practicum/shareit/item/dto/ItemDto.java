@@ -33,6 +33,8 @@ public class ItemDto {
     private NextBooking nextBooking;
     private List<CommentDto> comments;
 
+    private Long requestId;
+
     public ItemDto(long id, String name, String description, Boolean available, LastBooking lastBooking,
                    NextBooking nextBooking) {
         this.id = id;
@@ -56,5 +58,24 @@ public class ItemDto {
         this.description = description;
         this.available = available;
         this.comments = comments;
+    }
+
+    public ItemDto(long id, String name, String description, Boolean available, LastBooking lastBooking,
+                   NextBooking nextBooking, List<CommentDto> comments) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.lastBooking = lastBooking;
+        this.nextBooking = nextBooking;
+        this.comments = comments;
+    }
+
+    public ItemDto(long id, String name, String description, Boolean available, Long requestId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.requestId = requestId;
     }
 }
