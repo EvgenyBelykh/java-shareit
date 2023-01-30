@@ -2,6 +2,10 @@ package ru.practicum.shareit.item.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.repositories.BookingRepository;
@@ -29,6 +33,7 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +49,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
+    private static final Sort SORT_ID_ASC = Sort.by(Sort.Direction.ASC, "id");
 
     @Override
     public ItemDto add(long idUser, ItemDto itemDto) {
@@ -118,12 +124,21 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllByIdUser(long idUser) {
+    public List<ItemDto> getAllByIdUser(long idUser, Integer from, Integer size) {
         userService.isExistUser(idUser);
         checkUserForSaveItems(idUser);
+        List<ItemDto> itemDtoList;
 
-        List<ItemDto> itemDtoList = itemRepository.findByOwnerIdOrderById(idUser).stream()
-                .map(itemMapper::toItemDtoWithoutBooking).collect(Collectors.toList());
+        if (size == null) {
+            itemDtoList = itemRepository.findByOwnerIdOrderById(idUser).stream()
+                    .map(itemMapper::toItemDtoWithoutBooking).collect(Collectors.toList());
+        } else {
+            Pageable pageable = PageRequest.of(from/size, size, SORT_ID_ASC);
+
+            itemDtoList = itemRepository.findByOwnerIdOrderById(idUser, pageable).getContent()
+                    .stream().map(itemMapper::toItemDtoWithoutBooking)
+                    .collect(Collectors.toList());
+        }
 
         for (ItemDto itemDto : itemDtoList) {
             Booking bookingNext = bookingRepository.findFirstBookingByItemIdAndStartAfterOrderByStartAsc(itemDto.getId(),
@@ -147,8 +162,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(String text) {
-        List<ItemDto> searchList = itemsToItemsDto(itemRepository.search(text.toLowerCase()));
+    public List<ItemDto> search(String text, Integer from, Integer size) {
+        List<ItemDto> searchList;
+        if (size == null) {
+            searchList = itemsToItemsDto(itemRepository.search(text.toLowerCase()));
+        } else {
+            Pageable pageable = PageRequest.of(from/size, size, SORT_ID_ASC);
+            searchList = itemsToItemsDto(itemRepository.search(text, pageable).getContent());
+        }
         log.info("Возвращен список доступных вещей по запросу: {}", text);
         return searchList;
     }

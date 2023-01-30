@@ -211,8 +211,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void getAllItemsTest() throws Exception {
-        when(itemService.getAllByIdUser(anyLong()))
+    public void getAllItemsWithoutPaginationTest() throws Exception {
+        when(itemService.getAllByIdUser(1L, null, null))
                 .thenReturn(List.of(itemDto));
 
         mockMvc.perform(get("/items")
@@ -224,12 +224,12 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].description", is(itemDto.getDescription())))
                 .andExpect(jsonPath("$[0].available", is(itemDto.getAvailable())));
 
-        verify(itemService).getAllByIdUser(anyLong());
+        verify(itemService).getAllByIdUser(1L, null, null);
     }
 
     @Test
-    public void searchTest() throws Exception {
-        when(itemService.search(anyString()))
+    public void searchWithoutPaginationTest() throws Exception {
+        when(itemService.search("вещь", null, null))
                 .thenReturn(List.of(itemDto));
 
         mockMvc.perform(get("/items/search")
@@ -241,12 +241,12 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].description", is(itemDto.getDescription())))
                 .andExpect(jsonPath("$[0].available", is(itemDto.getAvailable())));
 
-        verify(itemService).search(anyString());
+        verify(itemService).search("вещь", null, null);
     }
 
     @Test
-    public void emptySearchTest() throws Exception {
-        when(itemService.search(" "))
+    public void emptySearchWithPaginationTest() throws Exception {
+        when(itemService.search(" ", 0, 2))
                 .thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/items/search")

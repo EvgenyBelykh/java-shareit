@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Create;
+import ru.practicum.shareit.booking.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.item.dto.AddCommentDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.exceptions.EmptyCommentException;
@@ -49,19 +50,25 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getAllByIdUser(@RequestHeader(value = "X-Sharer-User-Id") Long idUser) {
+    public List<ItemDto> getAllByIdUser(@RequestHeader(value = "X-Sharer-User-Id") Long idUser,
+                                        @RequestParam(value = "from", required = false) Integer from,
+                                        @RequestParam(value = "size", required = false) Integer size) {
+        checkParameters(from, size);
         log.info("Запрос всех вещей пользователя с id: {}", idUser);
-        return itemService.getAllByIdUser(idUser);
+        return itemService.getAllByIdUser(idUser, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestParam(name = "text") String text) {
+    public List<ItemDto> search(@RequestParam(name = "text") String text,
+                                @RequestParam(value = "from", required = false) Integer from,
+                                @RequestParam(value = "size", required = false) Integer size) {
         log.info("Поиск свободных вещей по строке: {}", text);
         if (text.isBlank()) {
             log.info("Пустой запрос. Возвращен пустой список");
             return Collections.emptyList();
         }
-        return itemService.search(text);
+        checkParameters(from, size);
+        return itemService.search(text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
@@ -82,6 +89,21 @@ public class ItemController {
                 (itemDto.getAvailable() == null)
         ) {
             throw new ValidationItemDtoException("Не задано ни одно поле для обновления вещи");
+        }
+    }
+    private void checkParameters(Integer from, Integer size){
+        if (from != null && from < 0) {
+            log.info("Задан неправильный номер элемента для пагинации = {}", from);
+            throw new IncorrectParameterException("from");
+        }
+        if (size != null && size <= 0) {
+            log.info("Задан неправильный размер страницы для пагинации = {}", size);
+            throw new IncorrectParameterException("size");
+        }
+        if (from != null & size == null |
+                from == null & size != null) {
+            log.info("Один из параметров пагинации null - from = {}, size={}", from, size);
+            throw new IncorrectParameterException("size или from");
         }
     }
 }

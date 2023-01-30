@@ -178,19 +178,19 @@ public class ItemServiceTest {
     }
 
     @Test
-    public void getAllItemsByIdOwnerTestIsOk() {
+    public void getAllItemsByIdOwnerWithoutPaginationTestIsOk() {
         ItemDto itemDto = new ItemDto(1L, "Очень необходимая вещь", "Очень необходимая вещь для чего-то важного", true);
         itemService.add(1L, itemDto);
 
         ItemDto secondItemDto = new ItemDto(2L, "Очень необходимая вещь 2", "Очень необходимая вещь для чего-то важного 2", true);
         itemService.add(1L, secondItemDto);
 
-        List<ItemDto> itemDtoList = itemService.getAllByIdUser(1L);
+        List<ItemDto> itemDtoList = itemService.getAllByIdUser(1L, null, null);
         assertThat(2, equalTo(itemDtoList.size()));
     }
 
     @Test
-    public void getAllItemsByWrongIdOwnerTest() {
+    public void getAllItemsByWrongIdOwnerWithoutPaginationTest() {
         ItemDto itemDto = new ItemDto(1L, "Очень необходимая вещь", "Очень необходимая вещь для чего-то важного", true);
         itemService.add(1L, itemDto);
 
@@ -201,20 +201,20 @@ public class ItemServiceTest {
         userService.add(userDto);
 
         assertThatThrownBy(() -> {
-            itemService.getAllByIdUser(2L);
+            itemService.getAllByIdUser(2L, null, null);
         }).isInstanceOf(ValidationNotFoundIdUserException.class)
                 .hasMessageContaining("У пользователя с id: 2 пока нет вещей для шеринга");
     }
 
     @Test
-    public void searchItemTestIsOk() {
+    public void searchItemWithoutPaginationTestIsOk() {
         ItemDto itemDto = new ItemDto(1L, "Очень необходимая вещь", "Очень необходимая вещь для чего-то важного", true);
         itemService.add(1L, itemDto);
 
         ItemDto secondItemDto = new ItemDto(2L, "лопата", "смеяться", true);
         itemService.add(1L, secondItemDto);
 
-        List<ItemDto> itemDtoList= itemService.search("Вещь");
+        List<ItemDto> itemDtoList= itemService.search("Вещь", null, null);
 
         assertThat(1, equalTo(itemDtoList.size()));
         assertThat(itemDto.getName(), equalTo(itemDtoList.get(0).getName()));
@@ -332,7 +332,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    public void getAllByIdUserWithBookingTestIsOk() throws InterruptedException {
+    public void getAllByIdUserWithBookingWithoutPaginationTestIsOk() throws InterruptedException {
         ItemDto itemDto = new ItemDto(1L, "Очень необходимая вещь", "Очень необходимая вещь для чего-то важного", true);
         itemService.add(1L, itemDto);
 
@@ -349,7 +349,7 @@ public class ItemServiceTest {
         bookingService.add(booker.getId(), newAddBookingDto);
         bookingService.patch(2, 1, true);
 
-        List<ItemDto> itemDtoFromBD = itemService.getAllByIdUser(1L);
+        List<ItemDto> itemDtoFromBD = itemService.getAllByIdUser(1L, null, null);
 
         assertThat(itemDtoFromBD.size(), equalTo(1));
     }
