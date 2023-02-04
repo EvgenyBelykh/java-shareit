@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -34,17 +35,30 @@ public class Item {
     @ToString.Exclude
     private User owner;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "request_id")
+    @ToString.Exclude
+    private ItemRequest itemRequest;
+
+    public Item(long id, String name, String description, Boolean available, User owner) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.owner = owner;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Item item = (Item) o;
-        return id == item.id && Objects.equals(name, item.name) && Objects.equals(description, item.description) && Objects.equals(available, item.available) && Objects.equals(owner, item.owner);
+        return id == item.id && Objects.equals(name, item.name) && Objects.equals(description, item.description) &&
+                Objects.equals(available, item.available) && Objects.equals(owner, item.owner);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description, available, owner);
     }
-
 }

@@ -2,6 +2,10 @@ package ru.practicum.shareit.booking.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.enums.State;
@@ -12,9 +16,10 @@ import ru.practicum.shareit.booking.exceptions.*;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repositories.BookingRepository;
-import ru.practicum.shareit.item.repositries.ItemRepository;
+import ru.practicum.shareit.item.repositories.ItemRepository;
 import ru.practicum.shareit.item.exceptions.NoItemException;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.exceptions.NoUserException;
 import ru.practicum.shareit.user.services.UserService;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -35,6 +40,8 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingMapper bookingMapper;
     private final UserMapper userMapper;
+
+    private static final Sort SORT_START_DATE_DESC = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
     public BookingDto add(long idUser, AddBookingDto addBookingDto) {
@@ -84,12 +91,12 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (booking.getStatus().equals(Status.APPROVED)) {
-            throw new ValidationStatusException("Владелец вещи с id= " + owner.getId() + "уже подтвердил брованирование" +
+            throw new ValidationStatusException("Владелец вещи с id= " + owner.getId() + " уже подтвердил брованирование" +
                     " с id= " + bookingId);
         }
 
         if (booking.getStatus().equals(Status.REJECTED)) {
-            throw new ValidationStatusException("Владелец вещи с id= " + owner.getId() + "уже отклонил брованирование" +
+            throw new ValidationStatusException("Владелец вещи с id= " + owner.getId() + " уже отклонил брованирование" +
                     " с id= " + bookingId);
         }
 
@@ -119,35 +126,73 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByIdUser(long idUser, State state) {
-        userService.isExistUser(idUser);
-
-        List<Booking> bookingList = bookingRepository.findBookingsByIdUserAndSortTime(idUser);
-
-        if (bookingList.isEmpty()) {
-            throw new NoBookingBookerException(idUser);
+    public List<BookingDto> getAllByIdUser(long idUser, State state, Integer from, Integer size) {
+        if (!userService.isExistUser(idUser)) {
+            throw new NoUserException(idUser);
         }
+        if (size == null) {
+            List<Booking> bookingList = bookingRepository.findBookingByIdUserAndSortTime(idUser);
 
-        List<Booking> curBookingList = getFilteredBookingListByState(bookingList, state);
+            if (bookingList.isEmpty()) {
+                throw new NoBookingBookerException(idUser);
+            }
 
-        log.info("Возвращены все бронирования пользователя с id={} со статусом {}", idUser, state);
-        return curBookingList.stream().map(bookingMapper::toBookingDto).collect(Collectors.toList());
+            List<Booking> curBookingList = getFilteredBookingListByState(bookingList, state);
+
+            log.info("Возвращены все бронирования пользователя с id={} со статусом {}", idUser, state);
+            return curBookingList.stream().map(bookingMapper::toBookingDto).collect(Collectors.toList());
+
+        } else {
+
+            Pageable pageable = PageRequest.of(from/size, size, SORT_START_DATE_DESC);
+            Page<Booking> bookingPage = bookingRepository.findBookingByBookerId(idUser, pageable);
+
+            if (bookingPage.getContent().isEmpty()) {
+                throw new NoBookingBookerException(idUser);
+            }
+
+            List<Booking> curBookingList = getFilteredBookingListByState(bookingPage.getContent(), state);
+
+            log.info("Возвращены все бронирования пользователя с id={} со статусом {} c пагинацией от элемента {} размером {}",
+                    idUser, state, from, size);
+            return curBookingList.stream().map(bookingMapper::toBookingDto).collect(Collectors.toList());
+        }
     }
 
     @Override
-    public List<BookingDto> getAllByIdOwner(long idUser, State state) {
-        userService.isExistUser(idUser);
-
-        List<Booking> bookingList = bookingRepository.findBookingsByIdOwner(idUser);
-
-        if (bookingList.isEmpty()) {
-            throw new NoBookingOwnerException(idUser);
+    public List<BookingDto> getAllByIdOwner(long idUser, State state, Integer from, Integer size) {
+        if (!userService.isExistUser(idUser)) {
+            throw new NoUserException(idUser);
         }
 
-        List<Booking> curBookingList = getFilteredBookingListByState(bookingList, state);
+        if (size == null) {
 
-        log.info("Возвращены все бронирования вещей хозяина с id={} со статусом {}", idUser, state);
-        return curBookingList.stream().map(bookingMapper::toBookingDto).collect(Collectors.toList());
+            List<Booking> bookingList = bookingRepository.findBookingByIdOwner(idUser);
+
+            if (bookingList.isEmpty()) {
+                throw new NoBookingOwnerException(idUser);
+            }
+
+            List<Booking> curBookingList = getFilteredBookingListByState(bookingList, state);
+
+            log.info("Возвращены все бронирования вещей хозяина с id={} со статусом {}", idUser, state);
+            return curBookingList.stream().map(bookingMapper::toBookingDto).collect(Collectors.toList());
+
+        } else {
+            Pageable pageable = PageRequest.of(from/size, size, SORT_START_DATE_DESC);
+            Page<Booking> bookingPage = bookingRepository.findBookingByIdOwner(idUser, pageable);
+
+            if (bookingPage.getContent().isEmpty()) {
+                throw new NoBookingOwnerException(idUser);
+            }
+
+            List<Booking> curBookingList = getFilteredBookingListByState(bookingPage.getContent(), state);
+
+            log.info("Возвращены все бронирования вещей хозяина с id={} со статусом {} и пагаинацией от {}, размером {}"
+                    , idUser, state, from, size);
+            return curBookingList.stream().map(bookingMapper::toBookingDto).collect(Collectors.toList());
+        }
+
     }
 
     private List<Booking> getFilteredBookingListByState(List<Booking> bookingList, State state) {

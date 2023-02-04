@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.exceptions.*;
 import ru.practicum.shareit.item.exceptions.*;
+import ru.practicum.shareit.request.exception.NoItemRequestException;
 import ru.practicum.shareit.user.exceptions.NoUserException;
 import ru.practicum.shareit.user.exceptions.ValidationNotFoundIdUserException;
 import ru.practicum.shareit.user.exceptions.ExistEmailUserDtoException;
+import ru.practicum.shareit.user.exceptions.ValidationUserDtoException;
 
 @RestControllerAdvice
 @Slf4j
@@ -31,7 +33,8 @@ public class ErrorHandler {
             ValidationBookingByOwnerItemOrBooker.class,
             NoBookingBookerException.class,
             NoBookingOwnerException.class,
-            ValidationBelongsItemToUser.class})
+            ValidationBelongsItemToUser.class,
+            NoItemRequestException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleValidationPatchException(Exception e) {
         log.info("404 Not Found");
@@ -44,6 +47,7 @@ public class ErrorHandler {
             ValidationStatusException.class,
             CommentFutureException.class,
             NoBookingCommentException.class,
+            ValidationUserDtoException.class,
             EmptyCommentException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(Exception e) {
@@ -56,6 +60,12 @@ public class ErrorHandler {
     public ErrorResponse handleIncorrectStatusException(WrongStateException e) {
         log.info("400 Bad Request");
         return new ErrorResponse(String.format(e.getMessage()));
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIncorrectParameterException(IncorrectParameterException e) {
+        log.info("400 Bad Request");
+        return new ErrorResponse("Ошибка с полем: " + e.getParameter());
     }
 
     @ExceptionHandler
