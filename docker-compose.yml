@@ -24,9 +24,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
       - SPRING_DATASOURCE_USERNAME=neonjohn
       - SPRING_DATASOURCE_PASSWORD=19891989
-#      - POSTGRES_DB=shareit
-#      - POSTGRES_USER=neonjohn
-#      - POSTGRES_PASSWORD=19891989
 
   db:
     image: postgres:14.3-alpine
