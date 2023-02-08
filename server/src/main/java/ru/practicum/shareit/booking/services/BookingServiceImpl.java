@@ -78,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto patch(long bookingId, long idUser, Boolean is_approved) {
+    public BookingDto patch(long bookingId, long idUser, Boolean isApproved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new NoBookingException(bookingId));
 
@@ -100,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
                     " с id= " + bookingId);
         }
 
-        if (is_approved) {
+        if (isApproved) {
             booking.setStatus(Status.APPROVED);
             log.info("Владелец вещи с id= {} подвердил бронирование с id={}", idUser, bookingId);
         } else {
