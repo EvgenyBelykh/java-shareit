@@ -21,21 +21,21 @@ public class UserController {
     private final UserClient userClient;
 
     @PostMapping
-    public ResponseEntity<Object> add(@Validated(Create.class) @RequestBody UserRequestDto userRequestDto){
+    public ResponseEntity<Object> add(@Validated(Create.class) @RequestBody UserRequestDto userRequestDto) {
         log.info("Запрос добавления пользователя с email {}", userRequestDto.getEmail());
-        return  userClient.addUser(userRequestDto);
+        return userClient.addUser(userRequestDto);
     }
 
     @PatchMapping("{id}")
     public ResponseEntity<Object> patch(@PathVariable("id") Long idUser,
-                                        @Validated(Update.class) @RequestBody UserRequestDto userRequestDto){
+                                        @Validated(Update.class) @RequestBody UserRequestDto userRequestDto) {
         checkPatch(userRequestDto);
         log.info("Запрос обновления пользователя с id {}", idUser);
         return userClient.patchUser(idUser, userRequestDto);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Object> remove(@PathVariable("id") Long idUser){
+    public ResponseEntity<Object> remove(@PathVariable("id") Long idUser) {
         log.info("Запрос удаления пользователя с id {}", idUser);
         return userClient.removeUser(idUser);
     }
