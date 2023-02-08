@@ -60,12 +60,12 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> patchBooking(@RequestHeader(value = "X-Sharer-User-Id") Long idUser,
-                                               @RequestParam(value = "approved") Boolean is_approved,
+                                               @RequestParam(value = "approved") Boolean isApproved,
                                                @PathVariable(value = "bookingId") Long bookingId) {
 
         log.info("Запрос подтверждения/отклонения бронирования: {} пользователем с id:{} вещи с id: {}",
-                is_approved, idUser, bookingId);
-        return bookingClient.patchBooking(idUser, bookingId, is_approved);
+                isApproved, idUser, bookingId);
+        return bookingClient.patchBooking(idUser, bookingId, isApproved);
     }
 
     @GetMapping("/{bookingId}")
