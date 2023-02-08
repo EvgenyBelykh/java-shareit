@@ -22,11 +22,11 @@ services:
       - db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
-#      - SPRING_DATASOURCE_USER=neonjohn
-#      - SPRING_DATASOURCE_PASSWORD=19891989
-      - POSTGRES_DB=shareit
-      - POSTGRES_USER=neonjohn
-      - POSTGRES_PASSWORD=19891989
+      - SPRING_DATASOURCE_USER=neonjohn
+      - SPRING_DATASOURCE_PASSWORD=19891989
+#      - POSTGRES_DB=shareit
+#      - POSTGRES_USER=neonjohn
+#      - POSTGRES_PASSWORD=19891989
 
   db:
     image: postgres:14.3-alpine
