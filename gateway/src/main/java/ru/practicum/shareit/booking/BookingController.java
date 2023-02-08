@@ -77,11 +77,11 @@ public class BookingController {
 
 
     private void compareStateAndStringFromJson(String stateString) {
-        if (!Objects.equals(stateString, State.ALL.toString()) &
-                !Objects.equals(stateString, State.PAST.toString()) &
-                !Objects.equals(stateString, State.CURRENT.toString()) &
-                !Objects.equals(stateString, State.FUTURE.toString()) &
-                !Objects.equals(stateString, State.WAITING.toString()) &
+        if (!Objects.equals(stateString, State.ALL.toString()) &&
+                !Objects.equals(stateString, State.PAST.toString()) &&
+                !Objects.equals(stateString, State.CURRENT.toString()) &&
+                !Objects.equals(stateString, State.FUTURE.toString()) &&
+                !Objects.equals(stateString, State.WAITING.toString()) &&
                 !Objects.equals(stateString, State.REJECTED.toString())) {
             throw new WrongStateException("Unknown state: UNSUPPORTED_STATUS");
         }
