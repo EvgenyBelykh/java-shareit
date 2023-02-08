@@ -91,7 +91,8 @@ public class ItemController {
             throw new ValidationItemDtoException("Не задано ни одно поле для обновления вещи");
         }
     }
-    private void checkParameters(Integer from, Integer size){
+
+    private void checkParameters(Integer from, Integer size) {
         if (from != null && from < 0) {
             log.info("Задан неправильный номер элемента для пагинации = {}", from);
             throw new IncorrectParameterException("from");

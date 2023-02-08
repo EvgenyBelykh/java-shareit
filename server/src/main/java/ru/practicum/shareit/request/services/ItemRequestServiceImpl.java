@@ -17,7 +17,6 @@ import ru.practicum.shareit.request.mappers.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repositories.ItemRequestRepository;
 import ru.practicum.shareit.user.exceptions.NoUserException;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repositories.UserRepository;
 import ru.practicum.shareit.user.services.UserService;
@@ -109,8 +108,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             Pageable pageable = PageRequest.of(from / size, size, SORT_CREATED_ASC);
 
             Page<ItemRequest> itemRequestPage = itemRequestRepository.findItemRequestByUserIdNot(idUser, pageable);
-            log.info("Возвращены все запросы вещей исключая пользователя с id={} с пагинацией from={}, size={}"
-                    , idUser, from, size);
+            log.info("Возвращены все запросы вещей исключая пользователя с id={} с пагинацией from={}, size={}",
+                    idUser, from, size);
             return itemRequestPage.map(itemRequest -> {
 
                 ItemRequestDto itemRequestDto = new ItemRequestDto();

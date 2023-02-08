@@ -20,6 +20,7 @@ public class ItemMapper {
                 item.getDescription(),
                 item.getAvailable());
     }
+
     public ItemDto toItemDtoWithoutBookingWithRequest(Item item) {
         return new ItemDto(item.getId(),
                 item.getName(),
@@ -53,6 +54,7 @@ public class ItemMapper {
                 itemDto.getAvailable(),
                 owner);
     }
+
     public Item toItemWithRequest(ItemDto itemDto, User owner, ItemRequest itemRequest) {
         return new Item(itemDto.getId(),
                 itemDto.getName(),

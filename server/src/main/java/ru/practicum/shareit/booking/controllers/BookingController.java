@@ -86,7 +86,8 @@ public class BookingController {
             throw new WrongStateException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
-    private void checkParameters(Integer from, Integer size){
+
+    private void checkParameters(Integer from, Integer size) {
         if (from != null && from < 0) {
             log.info("Задан неправильный номер элемента для пагинации = {}", from);
             throw new IncorrectParameterException("from");

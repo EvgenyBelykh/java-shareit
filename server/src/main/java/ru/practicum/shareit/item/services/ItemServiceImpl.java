@@ -55,7 +55,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto add(long idUser, ItemDto itemDto) {
         User user = userMapper.toUser(userService.getById(idUser));
 
-        if(itemDto.getRequestId() == null){
+        if (itemDto.getRequestId() == null) {
             Item item = itemRepository.save(itemMapper.toItem(itemDto, user));
             log.info("Сохранена вещь с id: {} пользователя с id: {}", item.getId(), idUser);
             return itemMapper.toItemDtoWithoutBooking(item);
@@ -133,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
             itemDtoList = itemRepository.findByOwnerIdOrderById(idUser).stream()
                     .map(itemMapper::toItemDtoWithoutBooking).collect(Collectors.toList());
         } else {
-            Pageable pageable = PageRequest.of(from/size, size, SORT_ID_ASC);
+            Pageable pageable = PageRequest.of(from / size, size, SORT_ID_ASC);
 
             itemDtoList = itemRepository.findByOwnerIdOrderById(idUser, pageable).getContent()
                     .stream().map(itemMapper::toItemDtoWithoutBooking)
@@ -167,7 +167,7 @@ public class ItemServiceImpl implements ItemService {
         if (size == null) {
             searchList = itemsToItemsDto(itemRepository.search(text.toLowerCase()));
         } else {
-            Pageable pageable = PageRequest.of(from/size, size, SORT_ID_ASC);
+            Pageable pageable = PageRequest.of(from / size, size, SORT_ID_ASC);
             searchList = itemsToItemsDto(itemRepository.search(text, pageable).getContent());
         }
         log.info("Возвращен список доступных вещей по запросу: {}", text);

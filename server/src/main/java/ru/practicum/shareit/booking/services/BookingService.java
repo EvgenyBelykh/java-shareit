@@ -9,7 +9,7 @@ import java.util.List;
 public interface BookingService {
     BookingDto add(long idUser, AddBookingDto addBookingDto);
 
-    BookingDto patch(long bookingId, long idUser, Boolean is_approved);
+    BookingDto patch(long bookingId, long idUser, Boolean isApproved);
 
     BookingDto getByIdBooking(long bookingId, long idUser);
 

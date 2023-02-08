@@ -144,7 +144,7 @@ public class BookingServiceImpl implements BookingService {
 
         } else {
 
-            Pageable pageable = PageRequest.of(from/size, size, SORT_START_DATE_DESC);
+            Pageable pageable = PageRequest.of(from / size, size, SORT_START_DATE_DESC);
             Page<Booking> bookingPage = bookingRepository.findBookingByBookerId(idUser, pageable);
 
             if (bookingPage.getContent().isEmpty()) {
@@ -179,7 +179,7 @@ public class BookingServiceImpl implements BookingService {
             return curBookingList.stream().map(bookingMapper::toBookingDto).collect(Collectors.toList());
 
         } else {
-            Pageable pageable = PageRequest.of(from/size, size, SORT_START_DATE_DESC);
+            Pageable pageable = PageRequest.of(from / size, size, SORT_START_DATE_DESC);
             Page<Booking> bookingPage = bookingRepository.findBookingByIdOwner(idUser, pageable);
 
             if (bookingPage.getContent().isEmpty()) {

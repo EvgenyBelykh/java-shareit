@@ -214,7 +214,7 @@ public class ItemServiceTest {
         ItemDto secondItemDto = new ItemDto(2L, "лопата", "смеяться", true);
         itemService.add(1L, secondItemDto);
 
-        List<ItemDto> itemDtoList= itemService.search("Вещь", null, null);
+        List<ItemDto> itemDtoList = itemService.search("Вещь", null, null);
 
         assertThat(1, equalTo(itemDtoList.size()));
         assertThat(itemDto.getName(), equalTo(itemDtoList.get(0).getName()));
@@ -258,7 +258,8 @@ public class ItemServiceTest {
 
 
         assertThatThrownBy(() -> {
-            itemService.addComment(booker.getId(), itemDto.getId(), addCommentDto);;
+            itemService.addComment(booker.getId(), itemDto.getId(), addCommentDto);
+            ;
         }).isInstanceOf(NoBookingCommentException.class)
                 .hasMessageContaining("Пользователь еще не арендовал эту вещь");
     }

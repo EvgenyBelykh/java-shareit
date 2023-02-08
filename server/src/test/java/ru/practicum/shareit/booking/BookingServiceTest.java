@@ -11,7 +11,6 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.enums.State;
 import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.exceptions.*;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.services.BookingService;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -313,7 +312,6 @@ public class BookingServiceTest {
         BookingDto bookingDto = bookingService.getByIdBooking(1, 1);
 
 
-
         TypedQuery<Booking> query = entityManager.createQuery("SELECT b FROM Booking b WHERE b.id = :id", Booking.class);
         Booking booking = query.setParameter("id", bookingDto.getId()).getSingleResult();
 
@@ -407,7 +405,8 @@ public class BookingServiceTest {
         bookingService.add(userDto.getId(), addBookingDto);
 
         assertThatThrownBy(() -> {
-            bookingService.getAllByIdUser(3, State.ALL, null, null);;
+            bookingService.getAllByIdUser(3, State.ALL, null, null);
+            ;
         }).isInstanceOf(NoUserException.class)
                 .hasMessageContaining("Пользователь с id: 3 не содержится в базе");
     }
@@ -423,7 +422,8 @@ public class BookingServiceTest {
         itemService.add(ownerDto.getId(), itemDto);
 
         assertThatThrownBy(() -> {
-            bookingService.getAllByIdUser(2, State.ALL, null, null);;
+            bookingService.getAllByIdUser(2, State.ALL, null, null);
+            ;
         }).isInstanceOf(NoBookingBookerException.class)
                 .hasMessageContaining("Пользователь с id: 2 не бронировал ни одну вещь");
     }

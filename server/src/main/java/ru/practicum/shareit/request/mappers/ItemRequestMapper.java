@@ -19,7 +19,7 @@ public class ItemRequestMapper {
                 itemDtoLists);
     }
 
-    public ItemRequest toItemRequest(ItemRequestDto itemRequestDto, LocalDateTime created, User user){
+    public ItemRequest toItemRequest(ItemRequestDto itemRequestDto, LocalDateTime created, User user) {
         return new ItemRequest(itemRequestDto.getDescription(),
                 created,
                 user);

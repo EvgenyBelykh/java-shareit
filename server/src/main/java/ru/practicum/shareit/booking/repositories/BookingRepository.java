@@ -16,11 +16,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(value = "SELECT b FROM Booking b WHERE b.item.id IN (SELECT DISTINCT i.id FROM Item i WHERE i.owner.id = ?1 )" +
             "ORDER BY b.start DESC")
     List<Booking> findBookingByIdOwner(long idOwner);
+
     @Query(value = "SELECT b FROM Booking b WHERE b.item.id IN (SELECT DISTINCT i.id FROM Item i WHERE i.owner.id = ?1)")
     Page<Booking> findBookingByIdOwner(long owner, Pageable pageable);
 
     @Query(value = "SELECT b FROM Booking b WHERE b.booker.id = ?1 ORDER BY b.start DESC")
     List<Booking> findBookingByIdUserAndSortTime(long idUser);
+
     @Query(value = "SELECT b FROM Booking b WHERE b.booker.id = ?1")
     Page<Booking> findBookingByBookerId(long idUser, Pageable pageable);
 
