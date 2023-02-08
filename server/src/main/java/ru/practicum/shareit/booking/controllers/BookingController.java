@@ -31,12 +31,12 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public BookingDto patch(@RequestHeader(value = "X-Sharer-User-Id") Long idUser,
-                            @RequestParam(value = "approved") Boolean is_approved,
+                            @RequestParam(value = "approved") Boolean isApproved,
                             @PathVariable(value = "bookingId") Long bookingId) {
 
         log.info("Запрос подтверждения/отклонения бронирования: {} пользователем с id:{} вещи с id: {}",
-                is_approved, idUser, bookingId);
-        return bookingService.patch(bookingId, idUser, is_approved);
+                isApproved, idUser, bookingId);
+        return bookingService.patch(bookingId, idUser, isApproved);
     }
 
     @GetMapping("/{bookingId}")

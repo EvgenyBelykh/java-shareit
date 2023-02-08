@@ -188,8 +188,8 @@ public class BookingServiceImpl implements BookingService {
 
             List<Booking> curBookingList = getFilteredBookingListByState(bookingPage.getContent(), state);
 
-            log.info("Возвращены все бронирования вещей хозяина с id={} со статусом {} и пагаинацией от {}, размером {}"
-                    , idUser, state, from, size);
+            log.info("Возвращены все бронирования вещей хозяина с id={} со статусом {} и пагаинацией от {}, размером {}",
+                    idUser, state, from, size);
             return curBookingList.stream().map(bookingMapper::toBookingDto).collect(Collectors.toList());
         }
 
@@ -201,17 +201,17 @@ public class BookingServiceImpl implements BookingService {
                 return bookingList.stream().filter(booking -> booking.getStart().isBefore(LocalDateTime.now()) &
                         booking.getEnd().isAfter(LocalDateTime.now())).collect(Collectors.toList());
             case PAST:
-                return bookingList.stream().filter(booking -> booking.getEnd().isBefore(LocalDateTime.now())).
-                        collect(Collectors.toList());
+                return bookingList.stream().filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
+                        .collect(Collectors.toList());
             case FUTURE:
-                return bookingList.stream().filter(booking -> booking.getStart().isAfter(LocalDateTime.now())).
-                        collect(Collectors.toList());
+                return bookingList.stream().filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                        .collect(Collectors.toList());
             case WAITING:
-                return bookingList.stream().filter(booking -> booking.getStatus().equals(Status.WAITING)).
-                        collect(Collectors.toList());
+                return bookingList.stream().filter(booking -> booking.getStatus().equals(Status.WAITING))
+                        .collect(Collectors.toList());
             case REJECTED:
-                return bookingList.stream().filter(booking -> booking.getStatus().equals(Status.REJECTED)).
-                        collect(Collectors.toList());
+                return bookingList.stream().filter(booking -> booking.getStatus().equals(Status.REJECTED))
+                        .collect(Collectors.toList());
             default:
                 return bookingList;
         }
