@@ -27,16 +27,16 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> addItem(long userId, ItemDto itemDto){
+    public ResponseEntity<Object> addItem(long userId, ItemDto itemDto) {
         return post("", userId, itemDto);
     }
 
-    public ResponseEntity<Object> patchItem(long userId, long itemId, ItemDto itemDto){
+    public ResponseEntity<Object> patchItem(long userId, long itemId, ItemDto itemDto) {
         return patch("/" + itemId, userId, itemDto);
     }
 
-    public ResponseEntity<Object> getAllByIdUser(long userId, Integer from, Integer size){
-        if(from == null || size == null){
+    public ResponseEntity<Object> getAllByIdUser(long userId, Integer from, Integer size) {
+        if (from == null || size == null) {
             return get("", userId);
         }
         Map<String, Object> parameters = Map.of(
@@ -46,12 +46,12 @@ public class ItemClient extends BaseClient {
         return get("?from={from}&size={size}", userId, parameters);
     }
 
-    public ResponseEntity<Object> getByIdItem(long itemId, long idUser){
+    public ResponseEntity<Object> getByIdItem(long itemId, long idUser) {
         return get("/" + itemId, idUser);
     }
 
-    public ResponseEntity<Object> searchItem(long userId, String text, Integer from, Integer size){
-        if(from == null || size == null){
+    public ResponseEntity<Object> searchItem(long userId, String text, Integer from, Integer size) {
+        if (from == null || size == null) {
             Map<String, Object> parameters = Map.of(
                     "text", text
             );
@@ -65,7 +65,7 @@ public class ItemClient extends BaseClient {
         return get("/search" + "?text={text}&from={from}&size={size}", userId, parameters);
     }
 
-    public ResponseEntity<Object> addComment(long userId, long itemId, AddCommentDto addCommentDto){
+    public ResponseEntity<Object> addComment(long userId, long itemId, AddCommentDto addCommentDto) {
         return post("/" + itemId + "/comment", userId, addCommentDto);
     }
 }

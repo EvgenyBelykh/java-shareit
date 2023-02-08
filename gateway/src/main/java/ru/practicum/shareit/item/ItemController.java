@@ -13,8 +13,6 @@ import ru.practicum.shareit.item.exceptions.EmptyCommentException;
 import ru.practicum.shareit.item.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.item.exceptions.ValidationItemDtoException;
 
-import java.util.Collections;
-
 @Controller
 @RequestMapping(path = "/items")
 @RequiredArgsConstructor
