@@ -16,5 +16,6 @@ public interface UserService {
     void remove(long idUser);
 
     boolean isExistUser(long idUser);
+
     boolean isEmailAlreadyInUse (String email);
 }

@@ -1,7 +1,5 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.http.HttpStatus;
-
 import java.lang.annotation.*;
 import javax.validation.*;
 

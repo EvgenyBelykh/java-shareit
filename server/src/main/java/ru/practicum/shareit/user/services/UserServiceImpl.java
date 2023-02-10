@@ -34,8 +34,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto add(UserDto userDto) {
-        if(isEmailAlreadyInUse(userDto.getEmail())){
-            //
+        if (isEmailAlreadyInUse(userDto.getEmail())) {
             userDto.setEmail("a@a.rux");
             userRepository.save(userMapper.toUser(userDto));
             Long id = userRepository.getUserByEmail(userDto.getEmail()).getId();
@@ -46,6 +45,7 @@ public class UserServiceImpl implements UserService {
             //  я не понимаю как обойти э то по другому.
             throw new ExistEmailUserDtoException("Пользователь с email=" + userDto.getEmail() + " уже есть в базе");
         }
+
         User user = userRepository.save(userMapper.toUser(userDto));
 
         log.info("Сохранили пользователя в БД с id: {}", user.getId());
@@ -54,9 +54,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto patch(long idUser, UserDto userDto) {
-        if(isEmailAlreadyInUse(userDto.getEmail())){
+        if (isEmailAlreadyInUse(userDto.getEmail())) {
             throw new ExistEmailUserDtoException("Пользователь с email=" + userDto.getEmail() + " уже есть в базе");
         }
+
         User curUser = userRepository.findById(idUser).orElseThrow(() -> new NoUserException(idUser));
 
         if (userDto.getName() != null && !userDto.getName().isBlank()) {
