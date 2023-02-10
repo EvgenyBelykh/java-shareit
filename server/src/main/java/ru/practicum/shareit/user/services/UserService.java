@@ -17,5 +17,5 @@ public interface UserService {
 
     boolean isExistUser(long idUser);
 
-    boolean isEmailAlreadyInUse (String email);
+    boolean isEmailAlreadyInUse(String email);
 }
